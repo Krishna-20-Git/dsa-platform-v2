@@ -1,0 +1,161 @@
+/* =================================================================== */
+/* Global Styles & Body                                               */
+/* =================================================================== */
+html {
+    box-sizing: border-box;
+    scroll-behavior: smooth;
+}
+
+*, *:before, *:after {
+    box-sizing: inherit;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background-color: #121212; /* Dark background */
+    color: #e0e0e0;           /* Light text */
+    line-height: 1.6;
+    font-size: 16px;
+}
+
+/* =================================================================== */
+/* Header & Footer                                                    */
+/* =================================================================== */
+header {
+    text-align: center;
+    padding: 3rem 1.5rem 2rem;
+    border-bottom: 2px solid #333;
+}
+
+header h1 {
+    font-size: 2.8rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+    color: #ffffff;
+}
+
+header p {
+    font-size: 1.1rem;
+    color: #aaa;
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+footer {
+    text-align: center;
+    padding: 2rem 1rem;
+    margin-top: 3rem;
+    font-size: 0.9rem;
+    color: #777;
+    border-top: 1px solid #333;
+}
+
+/* =================================================================== */
+/* Main Menu Navigation (The Grid)                                    */
+/* =================================================================== */
+.main-menu {
+    max-width: 1400px;
+    margin: 2.5rem auto;
+    padding: 0 1.5rem;
+}
+
+/* This is the outer <ul> that holds the 5 Unit cards */
+.main-menu > ul {
+    list-style: none;
+    display: grid;
+    /* This creates a responsive grid: */
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 2rem;
+}
+
+/* This is the <li> that acts as a "card" for each Unit */
+.main-menu > ul > li {
+    background: #1e1e1e;
+    border: 1px solid #444;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+/* Add a "lift" effect when hovering over a card */
+.main-menu > ul > li:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
+}
+
+/* Unit Title (e.g., "Unit 1: Memory Management") */
+.main-menu h2 {
+    font-size: 1.4rem;
+    font-weight: 600;
+    color: #00bfff; /* Deep Sky Blue accent */
+    padding: 1.25rem 1.5rem;
+    border-bottom: 1px solid #444;
+}
+
+/* =================================================================== */
+/* Visualizer Link List (Inside the cards)                            */
+/* =================================================================== */
+
+/* The inner <ul> that holds the links */
+.main-menu h2 + ul {
+    list-style: none;
+    padding: 1.5rem; /* Padding inside the card for the links */
+}
+
+/* The <li> holding each link */
+.main-menu h2 + ul li {
+    margin-bottom: 0.75rem;
+}
+
+/* The <a> link itself */
+.main-menu a {
+    display: block;
+    text-decoration: none;
+    color: #d4d4d4;
+    background: #333;
+    padding: 0.85rem 1.25rem;
+    border-radius: 8px;
+    border: 1px solid #555;
+    font-weight: 500;
+    transition: all 0.2s ease-in-out;
+}
+
+/* Link hover effect */
+.main-menu a:hover,
+.main-menu a:focus {
+    background: #00bfff;
+    color: #121212;
+    border-color: #00bfff;
+    transform: translateX(5px);
+    outline: none;
+}
+
+/* =================================================================== */
+/* Mobile Responsiveness                                              */
+/* =================================================================== */
+@media (max-width: 768px) {
+    body {
+        font-size: 15px;
+    }
+
+    header h1 {
+        font-size: 2.2rem;
+    }
+
+    .main-menu {
+        padding: 0 1rem;
+        margin-top: 2rem;
+    }
+
+    /* Stack the grid on smaller screens (auto-fit handles most, but good to be explicit) */
+    .main-menu > ul {
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+    }
+    
+    .main-menu h2 {
+        font-size: 1.3rem;
+    }
+}

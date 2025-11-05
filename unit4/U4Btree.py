@@ -1,0 +1,278 @@
+# 1. Import Blueprint
+from flask import Blueprint, request, jsonify, render_template_string
+import math
+
+# 2. Create Blueprint
+Btree_bp = Blueprint(
+'Btree_bp' , __name__
+)
+# ---------------------------------
+# B-Tree Node Class
+# (Logic is unchanged)
+# ---------------------------------
+class BTreeNode:
+    def __init__(self, t, leaf=False):
+        self.t = t  # minimum degree
+        self.leaf = leaf
+        self.keys = []      # keys
+        self.children = []  # children references
+
+
+# ---------------------------------
+# B-Tree Class
+# (Logic is unchanged)
+# ---------------------------------
+class BTree:
+    def __init__(self, t=2):
+        self.root = BTreeNode(t, True)
+        self.t = t
+        self.steps = []
+        self.highlight_nodes = {}
+
+    # ---------------------------------
+    # Insert a key
+    # ---------------------------------
+    def insert(self, k):
+        self.steps.clear()
+        self.highlight_nodes.clear()
+        self.steps.append(f"Starting insertion of key {k}.")
+        root = self.root
+        if len(root.keys) == (2 * self.t) - 1:
+            self.steps.append("Root is full. Creating a new root and splitting.")
+            new_root = BTreeNode(self.t, False)
+            new_root.children.insert(0, root)
+            self._split_child(new_root, 0)
+            self.root = new_root
+            self._insert_non_full(new_root, k)
+        else:
+            self._insert_non_full(root, k)
+        self.highlight_nodes[k] = "green"
+        return self.steps
+
+    def _insert_non_full(self, node, k):
+        i = len(node.keys) - 1
+        if node.leaf:
+            node.keys.append(None)
+            while i >= 0 and k < node.keys[i]:
+                node.keys[i + 1] = node.keys[i]
+                i -= 1
+            node.keys[i + 1] = k
+            self.steps.append(f"Inserted key {k} into leaf node {node.keys}.")
+        else:
+            while i >= 0 and k < node.keys[i]:
+                i -= 1
+            i += 1
+            self.steps.append(f"Moving to child index {i} of node {node.keys}.")
+            if len(node.children[i].keys) == (2 * self.t) - 1:
+                self.steps.append(f"Child {i} is full. Splitting child.")
+                self._split_child(node, i)
+                if k > node.keys[i]:
+                    i += 1
+            self._insert_non_full(node.children[i], k)
+
+    def _split_child(self, parent, i):
+        t = self.t
+        y = parent.children[i]
+        z = BTreeNode(t, y.leaf)
+        parent.children.insert(i + 1, z)
+        parent.keys.insert(i, y.keys[t - 1])
+        self.steps.append(f"Splitting node {y.keys}, promoting key {y.keys[t - 1]}.")
+        z.keys = y.keys[t:(2 * t) - 1]
+        y.keys = y.keys[0:t - 1]
+        if not y.leaf:
+            z.children = y.children[t:(2 * t)]
+            y.children = y.children[0:t]
+        self.highlight_nodes[parent.keys[i]] = "yellow"
+
+    # ---------------------------------
+    # Search
+    # ---------------------------------
+    def search(self, k):
+        self.steps.clear()
+        self.highlight_nodes.clear()
+        res = self._search(self.root, k)
+        if res:
+            self.steps.append(f"Key {k} found in node {res.keys}.")
+            self.highlight_nodes[k] = "green"
+        else:
+            self.steps.append(f"Key {k} not found in the tree.")
+        return self.steps
+
+    def _search(self, node, k):
+        i = 0
+        while i < len(node.keys) and k > node.keys[i]:
+            i += 1
+        if i < len(node.keys) and k == node.keys[i]:
+            return node
+        if node.leaf:
+            return None
+        self.steps.append(f"Searching key {k} in child {i} of node {node.keys}.")
+        return self._search(node.children[i], k)
+
+    # ---------------------------------
+    # Convert tree to JSON structure for D3
+    # ---------------------------------
+    def to_dict(self):
+        if not self.root or not self.root.keys:
+            return None # Return None for an empty tree
+            
+        def node_to_dict(node):
+            color = "white"
+            for key in node.keys:
+                if key in self.highlight_nodes:
+                    color = self.highlight_nodes[key]
+            
+            # Create a D3 node
+            d = {
+                "name": "|".join(map(str, node.keys)),
+                "color": color,
+            }
+            if not node.leaf:
+                d["children"] = [node_to_dict(child) for child in node.children]
+            return d
+        
+        return node_to_dict(self.root)
+
+
+# ---------------------------------
+# Flask + D3 Frontend
+# ---------------------------------
+HTML = """
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>B-Tree Visualizer</title>
+  <style>
+    body { font-family: Arial; margin: 10px; }
+    input, button { padding: 6px; margin: 3px; }
+    #tree { width: 100%; height: 600px; border: 1px solid #ccc; margin-top:10px; }
+    #steps { background:#f9f9f9; border:1px solid #ccc; padding:10px; margin-top:10px; height:180px; overflow-y:scroll; }
+  </style>
+</head>
+<body>
+  <h2>B-Tree Visualizer (Insertion, Search, Auto-Splitting)</h2>
+  <input id="key" type="number" placeholder="Enter key">
+  <button onclick="insertKey()">Insert</button>
+  <button onclick="searchKey()">Search</button>
+  <div id="steps">Steps will appear here...</div>
+  <div id="tree"></div>
+
+  <script src="https://d3js.org/d3.v7.min.js"></script>
+  <script>
+    // FIX: Renamed to getStatus and fetches 'status'
+    async function getStatus(){ const r=await fetch('status'); return await r.json(); }
+
+    async function insertKey(){
+      const keyInput = document.getElementById('key');
+      const key = keyInput.value;
+      if (!key) return alert("Please enter a key.");
+      
+      const r=await fetch('insert',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({key})});
+      const d=await r.json(); 
+      showSteps(d.steps); 
+      draw();
+      
+      // FIX: Clear input box
+      keyInput.value = "";
+    }
+
+    async function searchKey(){
+      const keyInput = document.getElementById('key');
+      const key = keyInput.value;
+      if (!key) return alert("Please enter a key.");
+      
+      const r=await fetch('search',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({key})});
+      const d=await r.json(); 
+      showSteps(d.steps); 
+      draw();
+      
+      // FIX: Clear input box
+      keyInput.value = "";
+    }
+
+    function showSteps(lines){
+      document.getElementById('steps').innerHTML = lines.map(l=>`<div>➡️ ${l}</div>`).join('');
+    }
+
+    async function draw(){
+      // FIX: Calls getStatus()
+      const data = await getStatus();
+      const div = document.getElementById('tree'); 
+      div.innerHTML='';
+      
+      // FIX: Check for null (which is what an empty tree returns)
+      if(!data){ 
+          div.innerHTML='<p style="padding:20px; text-align:center; color:#666">Tree is empty</p>'; 
+          return; 
+      }
+      
+      const width=div.clientWidth, height=600;
+      const svg=d3.select('#tree').append('svg').attr('width',width).attr('height',height);
+      const g=svg.append('g').attr('transform','translate(40,40)'); // More top padding
+      const root=d3.hierarchy(data); 
+      d3.tree().size([width-80,height-120])(root);
+      
+      g.selectAll('.link').data(root.links()).join('path')
+        .attr('fill','none').attr('stroke','#aaa').attr('stroke-width', 2)
+        .attr('d',d3.linkVertical().x(d=>d.x).y(d=>d.y));
+        
+      const n=g.selectAll('.node').data(root.descendants()).join('g')
+        .attr('transform',d=>`translate(${d.x},${d.y})`);
+      
+      // --- FIX: Dynamic Rect Width ---
+      n.append('rect')
+        .attr('width', d => Math.max(60, d.data.name.split('|').length * 30)) // 30px per key
+        .attr('height', 30)
+        .attr('x', d => -Math.max(60, d.data.name.split('|').length * 30) / 2) // Center the rect
+        .attr('y', -15)
+        .attr('stroke','black').attr('fill',d=>d.data.color);
+      // --- END FIX ---
+        
+      n.append('text').attr('dy', 4).attr('text-anchor','middle').text(d=>d.data.name);
+    }
+    
+    // FIX: Use window.onload
+    window.onload = draw;
+  </script>
+</body>
+</html>
+"""
+
+# FIX: Create an empty tree. Removed pre-population.
+btree = BTree(t=2)
+
+@Btree_bp.route('/')
+def index():
+    return render_template_string(HTML)
+
+# FIX: Renamed route to /status
+@Btree_bp.route('/status')
+def get_status():
+    return jsonify(btree.to_dict())
+
+# FIX: Added try/except
+@Btree_bp.route('/insert', methods=['POST'])
+def insert():
+    try:
+        key = int(request.json['key'])
+        steps = btree.insert(key)
+    except ValueError:
+        steps = ["Error: Input must be an integer."]
+    except Exception as e:
+        steps = [f"An error occurred: {e}"]
+    return jsonify({"steps": steps})
+
+# FIX: Added try/except
+@Btree_bp.route('/search', methods=['POST'])
+def search():
+    try:
+        key = int(request.json['key'])
+        steps = btree.search(key)
+    except ValueError:
+        steps = ["Error: Input must be an integer."]
+    except Exception as e:
+        steps = [f"An error occurred: {e}"]
+    return jsonify({"steps": steps})
+
+# FIX: REMOVED the if __name__ == '__main__' block
