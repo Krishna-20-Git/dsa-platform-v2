@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>My Dashboard - DSA Platform</title>
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='style.css') }}"
+    />
+  </head>
+  <body>
+    <div class="auth-wrapper">
+      <div class="shape shape-1" style="top: 10%; left: 10%"></div>
+      <div class="shape shape-2" style="bottom: 10%; right: 10%"></div>
+
+      <div class="dashboard-glass-card">
+        <div class="dashboard-header">
+          <h1>Welcome, {{ current_user.username }}</h1>
+          <nav>
+            <a href="{{ url_for('index') }}">&larr; Back to Modules</a>
+            <a href="{{ url_for('auth.logout') }}" style="color: #ff4444"
+              >Logout</a
+            >
+          </nav>
+        </div>
+
+        <div style="text-align: center; margin-bottom: 40px">
+          <h2>Your Learning Progress</h2>
+          <p class="progress-text" style="color: #ccc">
+            {{ count }} of 23 Algorithms Mastered
+          </p>
+
+          <div class="progress-container">
+            <div class="progress-bar" style="--prog-width: {{ percent }}%;">
+              {{ percent }}%
+            </div>
+          </div>
+        </div>
+
+        <div class="activity-log">
+          <h3>Recent Activity</h3>
+          {% if history %}
+          <ul>
+            {% for item in history %}
+            <li>
+              <span>
+                <span class="check">✔</span>
+                Completed <b>{{ item.module_name }}</b>
+              </span>
+              <span class="date"
+                >{{ item.timestamp.strftime('%b %d, %Y') }}</span
+              >
+            </li>
+            {% endfor %}
+          </ul>
+          {% else %}
+          <p style="color: #aaa; text-align: center; padding: 20px">
+            You haven't completed any modules yet.
+            <br /><br />
+            <a href="{{ url_for('index') }}" style="color: var(--accent)"
+              >Start Learning Now &rarr;</a
+            >
+          </p>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </body>
+</html>

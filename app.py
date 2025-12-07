@@ -1,8 +1,8 @@
 import os
-from flask import Flask, render_template
-
-# --- Import all your Blueprints using the ORIGINAL filenames ---
-
+from flask import Flask, render_template, request, jsonify # Add request/jsonify here
+from flask_login import LoginManager, current_user, login_required
+from models import db, User, UserProgress 
+from auth import auth_bp, bcrypt
 # Unit 1
 from unit1.U1DMA import dma_bp
 
@@ -39,10 +39,23 @@ from unit5.U5Spanning import Spanning_bp
 
 # --- Create the Main App ---
 app = Flask(__name__)
+app.config['SECRET_KEY'] = '5791628bb0b13ce0c676dfde280ba245' 
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///site.db'
+
+db.init_app(app)
+bcrypt.init_app(app)
+login_manager = LoginManager(app)
+login_manager.login_view = 'auth.login' # Where to redirect if user isn't logged in
+login_manager.login_message_category = 'info'
+
+@login_manager.user_loader
+def load_user(user_id):
+    return User.query.get(int(user_id))
+
 
 # --- Register Blueprints with URL Prefixes ---
 # (These prefixes do not need to change, they are just URLs)
-
+app.register_blueprint(auth_bp)
 # Unit 1
 app.register_blueprint(dma_bp, url_prefix='/unit1/U1DMA')
 
@@ -78,11 +91,29 @@ app.register_blueprint(Spanning_bp, url_prefix='/unit5/U5Spanning')
 
 
 # --- Main Homepage Route ---
+@app.route('/api/mark_complete', methods=['POST'])
+@login_required
+def mark_complete():
+    data = request.get_json()
+    module_name = data.get('module')
+    
+    # Check if already completed
+    exists = UserProgress.query.filter_by(user_id=current_user.id, module_name=module_name).first()
+    if not exists:
+        progress = UserProgress(module_name=module_name, user_id=current_user.id)
+        db.session.add(progress)
+        db.session.commit()
+        return jsonify({'status': 'success', 'msg': 'Progress recorded!'})
+    return jsonify({'status': 'exists', 'msg': 'Already completed!'})
+
 @app.route('/')
 def index():
     return render_template('index.html')
 
-# --- Run the App ---
+# Create Database Tables
+with app.app_context():
+    db.create_all()
+
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5000))
     app.run(debug=True, host='0.0.0.0', port=port)

@@ -3,75 +3,224 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DSA Visualizer Portal</title>
-    
+    <title>DSA Visualizer Platform</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-
+    <style>
+        /* Specific header overrides for Glass Theme */
+        header {
+            background: transparent;
+            border-bottom: none;
+            margin-bottom: 1rem;
+        }
+    </style>
 </head>
 <body>
+
+    <div class="fixed-bg">
+        <div class="shape shape-1" style="top: 10%; left: -5%; opacity: 0.3;"></div>
+        <div class="shape shape-2" style="bottom: 10%; right: -5%; opacity: 0.3;"></div>
+        <div class="shape shape-1" style="top: 40%; right: 30%; width: 150px; height: 150px; opacity: 0.2; animation-duration: 20s;"></div>
+    </div>
+
+    <nav>
+        <div class="welcome-msg">
+            {% if current_user.is_authenticated %}
+                Hello, {{ current_user.username }}!
+            {% else %}
+                Welcome to DSA Platform
+            {% endif %}
+        </div>
+        <div>
+            {% if current_user.is_authenticated %}
+                <a href="{{ url_for('auth.dashboard') }}">My Dashboard</a>
+                <a href="{{ url_for('auth.logout') }}">Logout</a>
+            {% else %}
+                <a href="{{ url_for('auth.login') }}">Login</a>
+                <a href="{{ url_for('auth.register') }}">Sign Up</a>
+            {% endif %}
+        </div>
+    </nav>
 
     <header>
         <h1>Data Structures & Algorithms Visualizer</h1>
         <p>A collection of all 23 visualizers, built with Flask and deployed as a single website.</p>
     </header>
 
-    <nav class="main-menu">
-        <ul>
-            <li>
+    <div class="flash-container">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }}">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+    </div>
+
+    <div class="container modules-section">
+        <div class="modules-grid">
+            
+            <div class="module-card">
                 <h2>Unit 1: Memory Management</h2>
                 <ul>
-                    <li><a href="/unit1/U1DMA/">Dynamic Memory Allocation (First Fit)</a></li>
+                    <li class="module-item">
+                        <a href="/unit1/U1DMA/">Dynamic Memory Allocation</a>
+                        <button class="tick-btn" onclick="markCompleted('Dynamic Memory Allocation', this)">✔</button>
+                    </li>
                 </ul>
-            </li>
+            </div>
 
-            <li>
+            <div class="module-card">
                 <h2>Unit 2: Linear Structures</h2>
                 <ul>
-                    <li><a href="/unit2/U2cirsingle/">Singly Circular Linked List</a></li>
-                    <li><a href="/unit2/U2DblCir/">Doubly Circular Linked List</a></li>
-                    <li><a href="/unit2/U2DoubleLinked/">Doubly Linked List</a></li>
-                    <li><a href="/unit2/U2linked_list_visual/">Singly Linked List</a></li>
-                    <li><a href="/unit2/U2sparesematrix/">Sparse Matrix (Linked)</a></li>
+                    <li class="module-item">
+                        <a href="/unit2/U2cirsingle/">Singly Circular Linked List</a>
+                        <button class="tick-btn" onclick="markCompleted('Singly Circular Linked List', this)">✔</button>
+                    </li>
+                    <li class="module-item">
+                        <a href="/unit2/U2DblCir/">Doubly Circular Linked List</a>
+                        <button class="tick-btn" onclick="markCompleted('Doubly Circular Linked List', this)">✔</button>
+                    </li>
+                    <li class="module-item">
+                        <a href="/unit2/U2DoubleLinked/">Doubly Linked List</a>
+                        <button class="tick-btn" onclick="markCompleted('Doubly Linked List', this)">✔</button>
+                    </li>
+                    <li class="module-item">
+                        <a href="/unit2/U2linked_list_visual/">Singly Linked List</a>
+                        <button class="tick-btn" onclick="markCompleted('Singly Linked List', this)">✔</button>
+                    </li>
+                    <li class="module-item">
+                        <a href="/unit2/U2sparesematrix/">Sparse Matrix (Linked)</a>
+                        <button class="tick-btn" onclick="markCompleted('Sparse Matrix', this)">✔</button>
+                    </li>
                 </ul>
-            </li>
+            </div>
 
-            <li>
+            <div class="module-card">
                 <h2>Unit 3: Stacks & Queues</h2>
                 <ul>
-                    <li><a href="/unit3/U3balancingsymbol/">Balancing Symbols</a></li>
-                    <li><a href="/unit3/U3infixtopost/">Infix to Postfix</a></li>
-                    <li><a href="/unit3/U3postfixevaluation/">Postfix Evaluation</a></li>
-                    <li><a href="/unit3/U3Queue/">Queue (Linked)</a></li>
-                    <li><a href="/unit3/U3queuearray/">Queue (Array)</a></li>
-                    <li><a href="/unit3/U3stack/">Stack (Linked)</a></li>
-                    <li><a href="/unit3/U3stackarray/">Stack (Array)</a></li>
-                    <li><a href="/unit3/U3towerofhanoi/">Tower of Hanoi</a></li>
+                    <li class="module-item">
+                        <a href="/unit3/U3balancingsymbol/">Balancing Symbols</a>
+                        <button class="tick-btn" onclick="markCompleted('Balancing Symbols', this)">✔</button>
+                    </li>
+                    <li class="module-item">
+                        <a href="/unit3/U3infixtopost/">Infix to Postfix</a>
+                        <button class="tick-btn" onclick="markCompleted('Infix to Postfix', this)">✔</button>
+                    </li>
+                    <li class="module-item">
+                        <a href="/unit3/U3postfixevaluation/">Postfix Evaluation</a>
+                        <button class="tick-btn" onclick="markCompleted('Postfix Evaluation', this)">✔</button>
+                    </li>
+                    <li class="module-item">
+                        <a href="/unit3/U3Queue/">Queue (Linked)</a>
+                        <button class="tick-btn" onclick="markCompleted('Queue Linked', this)">✔</button>
+                    </li>
+                    <li class="module-item">
+                        <a href="/unit3/U3queuearray/">Queue (Array)</a>
+                        <button class="tick-btn" onclick="markCompleted('Queue Array', this)">✔</button>
+                    </li>
+                    <li class="module-item">
+                        <a href="/unit3/U3stack/">Stack (Linked)</a>
+                        <button class="tick-btn" onclick="markCompleted('Stack Linked', this)">✔</button>
+                    </li>
+                    <li class="module-item">
+                        <a href="/unit3/U3stackarray/">Stack (Array)</a>
+                        <button class="tick-btn" onclick="markCompleted('Stack Array', this)">✔</button>
+                    </li>
+                    <li class="module-item">
+                        <a href="/unit3/U3towerofhanoi/">Tower of Hanoi</a>
+                        <button class="tick-btn" onclick="markCompleted('Tower of Hanoi', this)">✔</button>
+                    </li>
                 </ul>
-            </li>
+            </div>
 
-            <li>
+            <div class="module-card">
                 <h2>Unit 4: Trees</h2>
                 <ul>
-                    <li><a href="/unit4/U4AVL/">AVL Tree</a></li>
-                    <li><a href="/unit4/U4BST/">Binary Search Tree</a></li>
-                    <li><a href="/unit4/U4Btree/">B-Tree</a></li>
-                    <li><a href="/unit4/U4TreeRotation/">Tree Rotations</a></li>
-                    <li><a href="/unit4/U4TreeTravel/">Tree Traversals</a></li>
+                    <li class="module-item">
+                        <a href="/unit4/U4AVL/">AVL Tree</a>
+                        <button class="tick-btn" onclick="markCompleted('AVL Tree', this)">✔</button>
+                    </li>
+                    <li class="module-item">
+                        <a href="/unit4/U4BST/">Binary Search Tree</a>
+                        <button class="tick-btn" onclick="markCompleted('Binary Search Tree', this)">✔</button>
+                    </li>
+                    <li class="module-item">
+                        <a href="/unit4/U4Btree/">B-Tree</a>
+                        <button class="tick-btn" onclick="markCompleted('B-Tree', this)">✔</button>
+                    </li>
+                    <li class="module-item">
+                        <a href="/unit4/U4TreeRotation/">Tree Rotations</a>
+                        <button class="tick-btn" onclick="markCompleted('Tree Rotations', this)">✔</button>
+                    </li>
+                    <li class="module-item">
+                        <a href="/unit4/U4TreeTravel/">Tree Traversals</a>
+                        <button class="tick-btn" onclick="markCompleted('Tree Traversals', this)">✔</button>
+                    </li>
                 </ul>
-            </li>
+            </div>
 
-            <li>
+            <div class="module-card">
                 <h2>Unit 5: Graphs</h2>
                 <ul>
-                    <li><a href="/unit5/U5dijkstra/">Dijkstra's Shortest Path</a></li>
-                    <li><a href="/unit5/U5kruskal/">Kruskal's MST</a></li>
-                    <li><a href="/unit5/U5prims/">Prim's MST</a></li>
-                    <li><a href="/unit5/U5Spanning/">Spanning Trees (General)</a></li>
+                    <li class="module-item">
+                        <a href="/unit5/U5dijkstra/">Dijkstra's Shortest Path</a>
+                        <button class="tick-btn" onclick="markCompleted('Dijkstra Shortest Path', this)">✔</button>
+                    </li>
+                    <li class="module-item">
+                        <a href="/unit5/U5kruskal/">Kruskal's MST</a>
+                        <button class="tick-btn" onclick="markCompleted('Kruskal MST', this)">✔</button>
+                    </li>
+                    <li class="module-item">
+                        <a href="/unit5/U5prims/">Prim's MST</a>
+                        <button class="tick-btn" onclick="markCompleted('Prim MST', this)">✔</button>
+                    </li>
+                    <li class="module-item">
+                        <a href="/unit5/U5Spanning/">Spanning Trees (General)</a>
+                        <button class="tick-btn" onclick="markCompleted('Spanning Trees', this)">✔</button>
+                    </li>
                 </ul>
-            </li>
-        </ul>
-    </nav>
+            </div>
 
-    
+        </div>
+    </div>
+
+    <footer>
+        <p>Project by Krishna. Ready for deployment!</p>
+    </footer>
+
+    <div id="toast">Progress Recorded!</div>
+
+    <script>
+        async function markCompleted(moduleName, btnElement) {
+            const response = await fetch('/api/mark_complete', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ module: moduleName })
+            });
+            
+            if (response.status === 401) {
+                alert("Please login to track your progress!");
+                window.location.href = "{{ url_for('auth.login') }}";
+                return;
+            }
+
+            const data = await response.json();
+            
+            if(data.status === 'success' || data.status === 'exists') {
+                btnElement.classList.add('filled');
+                showToast("Progress Recorded!");
+            }
+        }
+
+        function showToast(message) {
+            var x = document.getElementById("toast");
+            x.innerText = message;
+            x.className = "show";
+            setTimeout(function(){ x.className = x.className.replace("show", ""); }, 3000);
+        }
+    </script>
+
 </body>
 </html>
