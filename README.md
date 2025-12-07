@@ -28,12 +28,16 @@ A full-stack educational SaaS platform designed to help students visualize and t
 
 ## Screenshots
 
-HOME PAGE
+**HOME PAGE:**
 <img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/50e67fc0-68be-4a3b-900b-634f1a7e06aa" />
 
-LOGIN PAGE:
+**LOGIN PAGE:**
 <img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/507ce83d-a743-45c9-b99e-cf3854a7a44c" />
-TOWER OF HANOI
+
+**DASHBOARD:**
+<img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/424533c9-50a0-497f-8a96-409b8e0b2ccd" />
+
+**TOWER OF HANOI:**
 <img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/6f97efd0-4c23-412c-a9a6-9ab971137364" />
 
 ## How to Run Locally
