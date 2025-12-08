@@ -1,4 +1,4 @@
-# Interactive Data Structures & Algorithms (DSA) Learning Platform
+# Full-stack educational platform with user progress tracking.
 
 A full-stack educational SaaS platform designed to help students visualize and track their mastery of complex computer science concepts. This application transforms static algorithm scripts into an interactive, gamified learning experience with a modern "Midnight Onyx" UI.
 
